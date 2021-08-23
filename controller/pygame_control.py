@@ -2,6 +2,7 @@ import pygame
 
 from pygame.locals import *
 # from model.colors import *
+from model.roul_model import Roul
 from random import randint, shuffle
 from model.board_texts import BoardTexts
 from sys import exit
@@ -10,9 +11,9 @@ from model.road_block import *
 
 
 class PGController:
-    def __init__(self, width=710 * 2, height=411 * 2, fps=30):
-        self.height = height
-        self.width = width
+    def __init__(self, width=710 * 2.4, height=411 * 2.4, fps=30):
+        self.height = int(height)
+        self.width = int(width)
         self.pg = pygame
         self.fps = fps
         self.pg.init()
@@ -102,9 +103,15 @@ class PGController:
         title = font.render(txt, True, (0, 0, 0))
         self.road_txts.append([title, (x, y)])
 
+    def _generate_img(self, src, width, height):
+        img = self.pg.image.load(src)
+        return self.pg.transform.scale(img, (int(width), int(height)))
+
     def run(self):
-        background = self.pg.image.load('./src/background.jpg').convert()
-        background = self.pg.transform.scale(background, (self.width, self.height))
+        background = self._generate_img('./src/background.jpg', self.width, self.height)
+        # roul = Rouself._generate_img('./src/roleta.png', )
+        roul = Roul(self.width*.15, self.width*.15, self.width-(self.width*0.15)-self.width * 0.05, self.width*.002)
+        self.all_sprites.add(roul)
 
         while True:
             self.pg.time.Clock().tick(self.fps)
@@ -115,10 +122,15 @@ class PGController:
                     self.pg.quit()
                     exit()
 
+                if event.type == KEYDOWN:
+                    if event.key == K_SPACE:
+                        roul.roll()
+
             self.all_sprites.draw(self.screen)
             self.all_sprites.update()
 
             for txt in self.road_txts:
                 self.screen.blit(txt[0], txt[1])
 
+            # self.screen.blit(roul, ())
             self.pg.display.flip()
