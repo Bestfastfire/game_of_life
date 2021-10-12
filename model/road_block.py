@@ -7,6 +7,8 @@ class RoadBlock(pygame.sprite.Sprite):
         # print(f'x: {x} | y: {y}')
         pygame.sprite.Sprite.__init__(self)
         self.controller = controller
+        self.controller.positions.append((x, y))
+
         self.current_sprite = index
         self.vertical = vertical
         self.text = text

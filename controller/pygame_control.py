@@ -3,6 +3,7 @@ import pygame
 from pygame.locals import *
 # from model.colors import *
 from model.roul_model import Roul
+from model.player_model import Player
 from random import randint, shuffle
 from model.board_texts import BoardTexts
 from sys import exit
@@ -20,9 +21,12 @@ class PGController:
 
         self.screen = self.pg.display.set_mode((self.width, self.height))
         self.all_sprites = self.pg.sprite.Group()
+        self.positions = []
         self.road_txts = []
 
         self._create_road(12, 51, 12, 12)
+        self.current_player = 0
+        self.players = []
         # self.all_sprites.add()
 
     def _create_road(self, horizontal_size=12, size=50, luck_roads=10, bad_roads=10):
@@ -107,11 +111,27 @@ class PGController:
         img = self.pg.image.load(src)
         return self.pg.transform.scale(img, (int(width), int(height)))
 
-    def run(self):
+    def move_player(self, player, index):
+        p = self.players[player]
+        n = p.position_index + index
+
+        if n > 0:
+            p.move_to(p.position_index + index)
+
+        print(f'player: {player} move to {p.position_index + index}')
+
+    def run(self, players):
         background = self._generate_img('./src/background.jpg', self.width, self.height)
         # roul = Rouself._generate_img('./src/roleta.png', )
-        roul = Roul(self.width*.15, self.width*.15, self.width-(self.width*0.15)-self.width * 0.05, self.width*.002)
+        roul = Roul(self, self.width*.15, self.width*.15, self.width-(self.width*0.15)-self.width * 0.05, self.width*.002)
         self.all_sprites.add(roul)
+
+        for k, p in enumerate(players):
+            self.players.append(Player(self, p[0], p[1], k+1))
+            player = self.players[k]
+
+            self.put_text(f'{player.name}: R$ {player.money}', 14, 40, 40 + k * 15)
+            self.all_sprites.add(player)
 
         while True:
             self.pg.time.Clock().tick(self.fps)
@@ -124,7 +144,14 @@ class PGController:
 
                 if event.type == KEYDOWN:
                     if event.key == K_SPACE:
-                        roul.roll()
+                        # self.players[0].move_to(self.positions[1])
+                        roul.roll(self.current_player)
+                        self.current_player += 1
+
+                        if self.current_player > len(self.players)-1:
+                            self.current_player = 0
+
+                    # if event.key == K_a:
 
             self.all_sprites.draw(self.screen)
             self.all_sprites.update()

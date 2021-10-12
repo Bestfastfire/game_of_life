@@ -3,12 +3,17 @@ from random import randint
 
 
 class Roul(pygame.sprite.Sprite):
-    def __init__(self, width, height, x, y):
+    __roul = [
+       1, -2, 5, -1, 2, -5, 3, -2, 5, -1, 2, -5
+    ]
+
+    def __init__(self, controller, width, height, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.sprites = [
             pygame.image.load(f'./src/sprites/roul/roul_{index}.png') for index in range(12)
         ]
 
+        self.controller = controller
         self.current_sprite = 0
         self.height = int(height)
         self.width = int(width)
@@ -20,22 +25,25 @@ class Roul(pygame.sprite.Sprite):
         self.rect.topleft = x, y
         self.rolling = False
 
+        self.current_player = 0
+        self.roul = 0
         self.last_roul = 0
         self.current = 0
         self.divisor = 6
         self.num = 0
 
-    def roll(self):
+    def roll(self, player):
         if self.rolling:
             return
 
-        g = randint(0, 11)
+        self.current_player = player
+        self.roul = randint(0, 11)
 
-        self.num = 360/12 * g + (360 * 4)
-        print(f'g: {g}')
+        self.num = 360/12 * self.roul + (360 * 4)
+        print(f'casas: {self.__roul[self.roul]}')
 
+        self.last_roul = self.roul
         self.current_sprite = 2
-        self.last_roul = g
         self.current = 0
         self.divisor = 6
         self.rolling = True
@@ -54,4 +62,5 @@ class Roul(pygame.sprite.Sprite):
 
             if self.current >= self.num:
                 self.rolling = False
+                self.controller.move_player(self.current_player, self.__roul[self.roul])
 
