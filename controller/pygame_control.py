@@ -23,9 +23,11 @@ class PGController:
         self.all_sprites = self.pg.sprite.Group()
         self.positions = []
         self.road_txts = []
+        self.road_len = 12
 
-        self._create_road(12, 51, 12, 12)
+        self._create_road(12, self.road_len, 4, 4)
         self.current_player = 0
+        self.old_player = 0
         self.players = []
         # self.all_sprites.add()
 
@@ -116,13 +118,19 @@ class PGController:
         n = p.position_index + index
 
         if n > 0:
-            p.move_to(p.position_index + index)
+            if n >= self.road_len-1:
+                p.move_to(self.road_len-1)
+
+            else:
+                p.move_to(p.position_index + index)
+
+        else:
+            p.move_to(0)
 
         print(f'player: {player} move to {p.position_index + index}')
 
     def run(self, players):
         background = self._generate_img('./src/background.jpg', self.width, self.height)
-        # roul = Rouself._generate_img('./src/roleta.png', )
         roul = Roul(self, self.width*.15, self.width*.15, self.width-(self.width*0.15)-self.width * 0.05, self.width*.002)
         self.all_sprites.add(roul)
 
@@ -144,14 +152,13 @@ class PGController:
 
                 if event.type == KEYDOWN:
                     if event.key == K_SPACE:
-                        # self.players[0].move_to(self.positions[1])
-                        roul.roll(self.current_player)
-                        self.current_player += 1
+                        if not self.players[self.old_player].walking:
+                            roul.roll(self.current_player)
+                            self.old_player = self.current_player
+                            self.current_player += 1
 
-                        if self.current_player > len(self.players)-1:
-                            self.current_player = 0
-
-                    # if event.key == K_a:
+                            if self.current_player > len(self.players)-1:
+                                self.current_player = 0
 
             self.all_sprites.draw(self.screen)
             self.all_sprites.update()
