@@ -21,18 +21,18 @@ class BoardTexts:
                     ''
                 ]
 
-                texts[0].append(txts[index])
+                texts[0].append([txts[index]])
                 blank -= 1
 
             else:
                 value = randint(50, 500)
 
                 if luck > 0:
-                    texts[1].append(f'+ R$ {value}')
+                    texts[1].append([f'+ R$ {value}', value])
                     luck -= 1
 
                 elif bad > 0:
-                    texts[2].append(f'- R$ {value}')
+                    texts[2].append([f'- R$ {value}', value * -1])
                     bad -= 1
 
         return texts

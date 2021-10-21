@@ -12,7 +12,8 @@ from model.road_block import *
 
 
 class PGController:
-    def __init__(self, width=710 * 2.4, height=411 * 2.4, fps=30):
+    def __init__(self, players_len=0, width=710 * 2.4, height=411 * 2.4, fps=30):
+        self.players_len = players_len
         self.height = int(height)
         self.width = int(width)
         self.pg = pygame
@@ -23,9 +24,10 @@ class PGController:
         self.all_sprites = self.pg.sprite.Group()
         self.positions = []
         self.road_txts = []
-        self.road_len = 12
+        self.road_len = 51
+        self.rv_list = []
 
-        self._create_road(12, self.road_len, 4, 4)
+        self._create_road(12, self.road_len, 15, 15)
         self.current_player = 0
         self.old_player = 0
         self.players = []
@@ -57,19 +59,19 @@ class PGController:
                 if inFinal or inStart:
                     y -= rh
 
-                    self._put_road(texts, missing, x, y, rw, rh)
+                    self._put_road(texts, missing, x, y, rw, rh, i)
                     i += 1
 
                     y -= rh
 
                     if i < size:
-                        self._put_road(texts, missing, x, y, rw, rh)
+                        self._put_road(texts, missing, x, y, rw, rh, i)
                         x += -rw if inFinal else +rw
                         invert = inFinal
                         i += 1
 
                         if i < size:
-                            self._put_road(texts, missing, x, y, rw, rh)
+                            self._put_road(texts, missing, x, y, rw, rh, i)
                             i += 1
 
                     continue
@@ -81,10 +83,10 @@ class PGController:
                     else:
                         x += rw
 
-            self._put_road(texts, missing, x, y, rw, rh, i == 0)
+            self._put_road(texts, missing, x, y, rw, rh, i, i == 0)
             i += 1
 
-    def _put_road(self, texts, missing, x, y, width, height, start=False):
+    def _put_road(self, texts, missing, x, y, width, height, road_index, start=False):
         index = 0
 
         if not start:
@@ -93,41 +95,71 @@ class PGController:
 
         txt = texts[missing[index]]
 
-        self.all_sprites.add(RoadBlock(self, x, y, width, height, txt[0], missing[index]))
+        self.all_sprites.add(RoadBlock(self, x, y, width, height, txt[0][0], missing[index]))
+
+        if missing[index] > 0:
+            # print(f'index {road_index} -> {txt[0][1]}')
+            self.rv_list.append([road_index, txt[0][1]])
 
         if not start:
             # max 19
             letter_len = width/14
-            txt_len = len(txt[0]) * letter_len
-            self.put_text(txt[0], 14, x + (width - txt_len)/2, y+height/2-10)
+            txt_len = len(txt[0][0]) * letter_len
+            self.put_text(txt[0][0], 14, x + (width - txt_len)/2, y+height/2-10)
 
         missing.pop(index)
         txt.pop(0)
 
-    def put_text(self, txt, fontsize, x, y):
+    def get_txt(self, txt, fontsize):
         font = pygame.font.SysFont('arial', fontsize, True, False)
-        title = font.render(txt, True, (0, 0, 0))
-        self.road_txts.append([title, (x, y)])
+        return font.render(txt, True, (0, 0, 0))
+
+    def put_text(self, txt, fontsize, x, y):
+        self.road_txts.append([self.get_txt(txt, fontsize), (x, y)])
+
+    def update_text(self, txt, index):
+        item = self.road_txts[index]
+        self.road_txts[index] = [self.get_txt(txt, 14), item[1]]
 
     def _generate_img(self, src, width, height):
         img = self.pg.image.load(src)
         return self.pg.transform.scale(img, (int(width), int(height)))
 
+    def _get_road_block(self, road_index):
+        for item in self.rv_list:
+            if item[0] == road_index:
+                return item[1]
+
+        return 0
+
     def move_player(self, player, index):
         p = self.players[player]
         n = p.position_index + index
+        right_index = p.position_index + index
+        # print(self.road_txts[len(self.road_txts)-1].text)
 
         if n > 0:
             if n >= self.road_len-1:
                 p.move_to(self.road_len-1)
+                right_index = self.road_len-1
 
             else:
                 p.move_to(p.position_index + index)
 
         else:
+            right_index = 0
             p.move_to(0)
 
-        print(f'player: {player} move to {p.position_index + index}')
+        block_money = self._get_road_block(right_index)
+
+        p.money = p.money + block_money
+
+        # print(f'text: {self.players_len}')
+        self.update_text(f'{p.name}: R$ {p.money}',
+                         len(self.road_txts) + player - self.players_len)
+
+        print(f'a: {len(self.road_txts)} | b: {player} | c: {self.players_len}')
+        print(f'player: {player} move to {p.position_index + index} -> {p.money}')
 
     def run(self, players):
         background = self._generate_img('./src/background.jpg', self.width, self.height)
