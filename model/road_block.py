@@ -1,4 +1,4 @@
-# from controller.pygame_control import PGController
+# from screens.pygame_control import PGController
 import pygame
 
 

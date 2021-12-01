@@ -43,8 +43,8 @@ class Roul(pygame.sprite.Sprite):
         self.current_player = player
         self.roul = randint(0, 11)
 
-        # if (self.controller.players[player].position_index + self.roul) \
-        #         >= (self.controller.road_len - 1):
+        # if (self.screens.players[player].position_index + self.roul) \
+        #         >= (self.screens.road_len - 1):
         #     print('Fim de jogo!')
 
         self.num = 360/12 * self.roul + (360 * 4)
