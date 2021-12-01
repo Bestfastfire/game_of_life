@@ -1,5 +1,5 @@
 # pip install pygame
-import sys
+
 from screens.ranking_screen import RankingScreen
 from screens.home_screen import HomeScreen
 from screens.game_screen import GameScreen
@@ -7,14 +7,22 @@ import pygame as pg
 
 pg.init()
 screen = pg.display.set_mode((int(710 * 2.4), int(411 * 2.4)))
-COLOR_INACTIVE = pg.Color('grey')
+COLOR_INACTIVE = pg.Color('black')
 COLOR_ACTIVE = pg.Color('red')
 FONT = pg.font.Font(None, 32)
+colors = [
+    'Vermelho',
+    'Verde',
+    'Azul',
+    'Branco'
+]
+
 players = [
     [
         '',
         400,
-        0
+        colors[i],
+        i
     ] for i in range(4)
 ]
 
@@ -30,7 +38,7 @@ def to_scene(screen_name):
 
 
 scenes = {
-    'home': HomeScreen(pg, screen, FONT, COLOR_ACTIVE, COLOR_INACTIVE, players, to_scene),
+    'home': HomeScreen(pg, screen, FONT, COLOR_ACTIVE, COLOR_INACTIVE, colors, players, to_scene),
     'ranking': RankingScreen(pg, screen, to_scene)
 }
 

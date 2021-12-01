@@ -35,13 +35,13 @@ class InputText:
 
                 else:
                     text_s = self.font.render(self.label + ': ' +
-                                              self.text + event.unicode, True, self.color)
+                                              self.text + event.unicode, True, self.pg.Color('red'))
 
                     if (text_s.get_width()) < 400:
                         self.text += event.unicode
 
                 self.txt_surface = self.font.render(
-                    self.label + ': ' + self.text, True, self.color)
+                    self.label + ': ' + self.text, True, self.pg.Color('red'))
 
                 self.player[0] = self.text
 

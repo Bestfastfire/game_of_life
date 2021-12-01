@@ -2,16 +2,16 @@ import pygame
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, controller, name, money, player=0):
+    def __init__(self, controller, name, money, color, sprite_index, player=0):
         pygame.sprite.Sprite.__init__(self)
         self.money = money
         self.name = name
 
         print(f'p: {player}')
         self.sprites = [
-            pygame.image.load(f'./src/sprites/player/p{player}_stopped.png'),
-            pygame.image.load(f'./src/sprites/player/p{player}_walking.png'),
-            pygame.image.load(f'./src/sprites/player/p{player}_walking.png')
+            pygame.image.load(f'./src/sprites/player/p{sprite_index}_stopped.png'),
+            pygame.image.load(f'./src/sprites/player/p{sprite_index}_walking.png'),
+            pygame.image.load(f'./src/sprites/player/p{sprite_index}_walking.png')
         ]
 
         self.current_position = controller.positions[0]
@@ -21,6 +21,8 @@ class Player(pygame.sprite.Sprite):
         self.position_index = 0
         self.current_sprite = 0
         self.walking = False
+        self.color = color
+
         self.walk_list = []
 
         self.image = self.sprites[self.current_sprite]

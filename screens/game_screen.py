@@ -33,8 +33,7 @@ class GameScreen:
         self.old_player = 0
         self.players = []
 
-        self.run(self.players)
-        # self.all_sprites.add()
+        self.create_players(players)
 
     def _create_road(self, horizontal_size=12, size=50, luck_roads=10, bad_roads=10):
         margin = self.width * 0.05
@@ -158,20 +157,20 @@ class GameScreen:
         p.money = p.money + block_money
 
         # print(f'text: {self.players_len}')
-        self.update_text(f'{p.name}: R$ {p.money}',
+        self.update_text(f'{p.name} ({p.color}): R$ {p.money}',
                          len(self.road_txts) + player - self.players_len)
 
         print(f'a: {len(self.road_txts)} | b: {player} | c: {self.players_len}')
         print(f'player: {player} move to {p.position_index + index} -> {p.money}')
 
-    def run(self, players):
+    def create_players(self, players):
         self.all_sprites.add(self.roul)
 
         for k, p in enumerate(players):
-            self.players.append(Player(self, p[0], p[1], k + 1))
+            self.players.append(Player(self, p[0], p[1], p[2], p[3]+1, k + 1))
             player = self.players[k]
 
-            self.put_text(f'{player.name}: R$ {player.money}', 14, 40, 40 + k * 15)
+            self.put_text(f'{player.name} ({player.color}): R$ {player.money}', 14, 40, 40 + k * 15)
             self.all_sprites.add(player)
 
     def update(self):
@@ -185,6 +184,8 @@ class GameScreen:
 
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
+                    print(f'{self.old_player} | {self.current_player}')
+
                     if not self.players[self.old_player].walking:
                         self.roul.roll(self.current_player)
                         self.old_player = self.current_player

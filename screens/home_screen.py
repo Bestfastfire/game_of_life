@@ -5,7 +5,7 @@ from tkinter import *
 
 
 class HomeScreen:
-    def __init__(self, pg, screen, font, color_active, color_inactive, players, go_to):
+    def __init__(self, pg, screen, font, color_active, color_inactive, colors, players, go_to):
         self.color_inactive = color_inactive
         self.color_active = color_active
         self.color = self.color_inactive
@@ -16,10 +16,11 @@ class HomeScreen:
 
         self.go_to = go_to
         self.clock = self.pg.time.Clock()
+        self.background = self._generate_img('./src/background_home.png', 710 * 2.4, 411 * 2.4)
 
         self.input_boxes = [
             InputText(self.pg, self.font, self.color_active, self.color_inactive,
-                      int((710 * 2.4 / 2) - 200), 100 + (k * 50), 300, 32, f'Player {k + 1}', p) for k, p in
+                      int((710 * 2.4 / 2) - 200), 100 + (k * 50), 300, 32, f'Player {k + 1} ({colors[k]})', p) for k, p in
             enumerate(players)
         ]
 
@@ -32,6 +33,10 @@ class HomeScreen:
         self.active = False
         self.text = ''
         self.done = False
+
+    def _generate_img(self, src, width, height):
+        img = self.pg.image.load(src)
+        return self.pg.transform.scale(img, (int(width), int(height)))
 
     def start_game(self):
         miss = 0
@@ -60,6 +65,8 @@ class HomeScreen:
             self.go_to('game')
 
     def update(self):
+        self.screen.blit(self.background, (0, 0))
+
         for event in self.pg.event.get():
             if event.type == self.pg.QUIT:
                 self.pg.quit()
@@ -74,7 +81,7 @@ class HomeScreen:
         for box in self.input_boxes:
             box.update()
 
-        self.screen.fill((30, 30, 30))
+        # self.screen.fill((30, 30, 30))
         for box in self.input_boxes:
             box.draw(self.screen)
 
