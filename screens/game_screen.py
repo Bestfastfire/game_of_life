@@ -6,12 +6,14 @@ from random import randint, shuffle
 from model.board_texts import BoardTexts
 from sys import exit
 
-from model.road_block import *
+from tkinter import messagebox
+from tkinter import *
 
+from model.road_block import *
+from widgets.mybutton import MyButton
 
 class GameScreen:
-    def __init__(self, pg, screen, players, width=710 * 2.4, height=411 * 2.4, fps=30):
-        self.players_len = len(players)
+    def __init__(self, pg, screen, players, go_to, width=710 * 2.4, height=411 * 2.4, fps=30):
         self.height = int(height)
         self.width = int(width)
         self.fps = fps
@@ -19,21 +21,26 @@ class GameScreen:
 
         self.roul = Roul(self, self.width * .15, self.width * .15, self.width - (self.width * 0.15) - self.width * 0.05,
                          self.width * .002)
+
+        self.back = MyButton('Voltar', ((710 * 2.4) - 100, (int(411 * 2.4)) - 50), self.pg, 30, lambda: go_to('home'))
         self.background = self._generate_img('./src/background.jpg', self.width, self.height)
 
         self.screen = screen
         self.all_sprites = self.pg.sprite.Group()
         self.positions = []
         self.road_txts = []
-        self.road_len = 51
+        self.road_len = 15
         self.rv_list = []
 
-        self._create_road(12, self.road_len, 15, 15)
+        self._create_road(12, self.road_len, 5, 5)
         self.current_player = 0
         self.old_player = 0
         self.players = []
 
         self.create_players(players)
+        self.players_len = len(self.players)
+
+        self.game_over = False
 
     def _create_road(self, horizontal_size=12, size=50, luck_roads=10, bad_roads=10):
         margin = self.width * 0.05
@@ -160,30 +167,62 @@ class GameScreen:
         self.update_text(f'{p.name} ({p.color}): R$ {p.money}',
                          len(self.road_txts) + player - self.players_len)
 
+        winner = self.is_done()
+        if winner != 0:
+            Tk().wm_withdraw()
+            messagebox.showinfo('Fim', f'FIM DE JOGO! O jogador {winner.name} ({winner.color}) ganhou!')
+            self.write_winner(winner)
+            self.game_over = True
+
         print(f'a: {len(self.road_txts)} | b: {player} | c: {self.players_len}')
         print(f'player: {player} move to {p.position_index + index} -> {p.money}')
+
+    def write_winner(self, player):
+        file = open('./src/data/game_history.txt', 'a')
+        file.write(str([player.name, player.money]) + '\n')
+        file.close()
 
     def create_players(self, players):
         self.all_sprites.add(self.roul)
 
-        for k, p in enumerate(players):
-            self.players.append(Player(self, p[0], p[1], p[2], p[3]+1, k + 1))
-            player = self.players[k]
+        k = 0
+        for p in players:
+            if str(p[0]).strip() != '':
+                self.players.append(Player(self, p[0], p[1], p[2], p[3]+1, k + 1))
+                player = self.players[k]
 
-            self.put_text(f'{player.name} ({player.color}): R$ {player.money}', 14, 40, 40 + k * 15)
-            self.all_sprites.add(player)
+                self.put_text(f'{player.name} ({player.color}): R$ {player.money}', 14, 40, 40 + k * 15)
+                self.all_sprites.add(player)
+                k += 1
+
+    def is_done(self):
+        winner = 0
+
+        for p in self.players:
+            if p.position_index == self.road_len-1:
+                winner = p
+
+                for p2 in self.players:
+                    if p2.money > winner.money:
+                        winner = p2
+
+                break
+
+        return winner
 
     def update(self):
         self.pg.time.Clock().tick(self.fps)
         self.screen.blit(self.background, (0, 0))
 
         for event in self.pg.event.get():
+            self.back.click(event)
+
             if event.type == QUIT:
                 self.pg.quit()
                 exit()
 
             if event.type == KEYDOWN:
-                if event.key == K_SPACE:
+                if event.key == K_SPACE and not self.game_over:
                     print(f'{self.old_player} | {self.current_player}')
 
                     if not self.players[self.old_player].walking:
@@ -201,4 +240,5 @@ class GameScreen:
             self.screen.blit(txt[0], txt[1])
 
         # self.screen.blit(roul, ())
+        self.back.draw(self.screen)
         self.pg.display.flip()

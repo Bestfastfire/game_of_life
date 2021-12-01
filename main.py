@@ -34,7 +34,7 @@ def to_scene(screen_name):
     current_screen = screen_name
 
     if current_screen == 'game':
-        scenes['game'] = GameScreen(pg, screen, players)
+        scenes['game'] = GameScreen(pg, screen, players, to_scene)
 
 
 scenes = {

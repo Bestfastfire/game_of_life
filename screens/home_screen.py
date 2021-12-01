@@ -20,15 +20,16 @@ class HomeScreen:
 
         self.input_boxes = [
             InputText(self.pg, self.font, self.color_active, self.color_inactive,
-                      int((710 * 2.4 / 2) - 200), 100 + (k * 50), 300, 32, f'Player {k + 1} ({colors[k]})', p) for k, p in
+                      int((710 * 2.4 / 2) - 200), 100 + (k * 50), 300, 32, f'Player {k + 1} ({colors[k]})', p) for k, p
+            in
             enumerate(players)
         ]
 
-        self.init_game = MyButton(" Iniciar Game ", (int(710 * 2.4 / 2 - 180),
-                                                         int(480 * .65)), self.pg, 30, self.start_game)
+        self.init_game = MyButton(" Start ", (int(710 * 2.4 / 2 - 120),
+                                              int(480 * .65)), self.pg, 30, self.start_game)
 
         self.ranking = MyButton(" Ranking ", (int(710 * 2.4 / 2 + 20),
-                                                  int(480 * .65)), self.pg, 30, lambda: go_to('ranking'))
+                                              int(480 * .65)), self.pg, 30, lambda: go_to('ranking'))
 
         self.active = False
         self.text = ''
@@ -51,17 +52,6 @@ class HomeScreen:
                                         'preencha pelo meno o nome de 2 jogadores para continuar')
 
         else:
-            i = 0
-            while i < len(self.players):
-                if i >= len(self.players):
-                    break
-
-                if str(self.players[i][0]).strip() == '':
-                    self.players.pop(i)
-
-                else:
-                    i += 1
-
             self.go_to('game')
 
     def update(self):
